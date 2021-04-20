@@ -8,6 +8,11 @@
 
   <PropertyGroup>
     <PackageId>Scaleway.Functions</PackageId>
+    <Authors>David Nordvall</Authors>
+    <Owners>doit-solutions</Owners>
+    <License>MIT</License>
+    <Description>A simple ASP.NET Core middleware for running ASP.NET Core APIs in a Scaleway serverless containers.</Description>
+    <Copyright>Copyright © 2021 do IT Solutions AB</Copyright>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/doit-solutions/Scaleway.Functions</RepositoryUrl>
   </PropertyGroup>
