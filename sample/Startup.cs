@@ -23,7 +23,7 @@ namespace Scaleway.Functions
         {
             app
                 .UseProblemDetails()
-                .UseScalewayFunctions(allowOrigin: new Uri("https://sample-bucket-website.s3-website.nl-ams.scw.cloud/"))
+                .UseScalewayFunctions(new Uri("https://sample-bucket-website.s3-website.nl-ams.scw.cloud"))
                 .UseResponseCompression()
                 .UseHsts()
                 .UseHttpsRedirection();

@@ -3,12 +3,13 @@ using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 
 namespace Scaleway.Functions
 {
     public static class ApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseScalewayFunctions(this IApplicationBuilder app, Uri? allowOrigin = null)
+        public static IApplicationBuilder UseScalewayFunctions(this IApplicationBuilder app, params Uri[] allowOrigins)
         {
             app.UseForwardedHeaders();
             app.Use(async (ctx, next) =>
@@ -21,10 +22,17 @@ namespace Scaleway.Functions
                     throw new InvalidOperationException($"Could not create instance of service {typeof(ScalewayContext).FullName}; make sure AddScalewayFunctions() has been called on the application's service collection.");
                 }
 
-                if (allowOrigin != null)
+                // Set the Access-Control-Allow-Origin header according to the specified allowed origins and the actual
+                // origin of this request.
+                if (!allowOrigins.Any())
                 {
-                    ctx.Response.Headers.Add("Access-Control-Allow-Origin", allowOrigin.ToString());
+                    ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");    
                 }
+                else if (ctx.Request.Headers.TryGetValue("Origin", out StringValues origin))
+                {
+                    ctx.Response.Headers.Add("Access-Control-Allow-Origin", origin.ToString());
+                }
+
                 // Determine if we need validate authentication token.
                 if (scwCtx.IsRunningAsFunction && scwCtx.RequiresAuthentication.GetValueOrDefault(false))
                 {
