@@ -1,7 +1,7 @@
 # Scaleway.Functions
-[![NuGet](https://img.shields.io/nuget/v/Scaleway.Functions.svg?style=flat)](https://www.nuget.org/packages/Bond.CSharp/)
+[![NuGet](https://img.shields.io/nuget/v/Scaleway.Functions.svg?style=flat)](https://www.nuget.org/packages/Scaleway.Functions/)
 
-A simple ASP.NET Core middleware for running ASP.NET Core APIs in a Scaleway serverless containers.
+A simple ASP.NET Core middleware for running ASP.NET Core APIs in Scaleway serverless containers.
 
 ## Getting started
 This middleware has two primary functions. First, it makes sure you Kestrel instance is listening on the correct port (according to the `${PORT}` environment variable provided by Scaleway's serverless runtime). Second, it performs token validation/authorization for private functions based on the provided token and public key.
@@ -27,7 +27,7 @@ Using this middleware requires a couple of additions to your code. First, the ho
                     .ConfigureWebHostDefaults(webBuilder =>
                     {
                         webBuilder
-                            // Make sure Kestrel  listens on the correct port.
+                            // Make sure Kestrel listens on the correct port.
                             .UseScalewayFunctionsHosting()
                             .UseStartup<Startup>();
                     });
@@ -63,7 +63,7 @@ Second, your `Startup` class must be amended, adding required services to your s
                 app
                     .UseProblemDetails()
                     // Add the Scaleway.Functions middleware as early as possible in the pipeline.
-                    .UseScalewayFunctions(allowOrigin: new Uri("https://sample-bucket-website.s3-website.nl-ams.scw.cloud/"))
+                    .UseScalewayFunctions(new Uri("https://sample-bucket-website.s3-website.nl-ams.scw.cloud/"))
                     .UseResponseCompression()
                     .UseHsts()
                     .UseHttpsRedirection();
@@ -78,4 +78,4 @@ Second, your `Startup` class must be amended, adding required services to your s
         }
     }
 
-As you can see in the sample above, it is possible to add a URI which will be added to the `Access-Control-Allow-Origin` header in the function's responses. This might come in handy if you use the function as an API backend for a Scaleway bucket website, for example.
+As you can see in the sample above, it is possible to add one or more URIs, which will be added to the `Access-Control-Allow-Origin` header in the function's responses. This might come in handy if you use the function as an API backend for a Scaleway bucket website, for example.
