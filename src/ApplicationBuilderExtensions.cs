@@ -56,8 +56,10 @@ namespace Scaleway.Functions
                     {
                         decryptedToken = JsonSerializer.Deserialize<ScalewayToken>(JWT.Decode(token, scwCtx?.PublicKey, JwsAlgorithm.RS256));
                     }
-                    catch (Newtonsoft.Json.JsonReaderException) {}
-                    catch (JoseException) {}
+                    catch (Exception e) when(e is Newtonsoft.Json.JsonReaderException || e is JoseException)
+                    {
+                        logger.LogWarning(e, "Scaleway token could not be decoded in request to private Scaleway function {ScwApplicationName}/{ScwApplicationId} in namespace {ScwNamespaceId}.", scwCtx?.ApplicationName, scwCtx?.ApplicationId, scwCtx?.NamespaceId);
+                    }
                     if (decryptedToken == null)
                     {
                         logger.LogWarning("Scaleway token could not be verified using the public key provided by the Scaleway Serverless runtime in request to private Scaleway function {ScwApplicationName}/{ScwApplicationId} in namespace {ScwNamespaceId}.", scwCtx?.ApplicationName, scwCtx?.ApplicationId, scwCtx?.NamespaceId);
