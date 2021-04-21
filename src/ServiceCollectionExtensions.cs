@@ -1,8 +1,6 @@
 using System;
 using System.Security.Cryptography;
-using System.Text.Json;
 using System.Text.RegularExpressions;
-using Jose;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,20 +24,16 @@ namespace Scaleway.Functions
                     if (applicationId != null)
                     {
                         var requiresAuthentication = !bool.TryParse(Environment.GetEnvironmentVariable("SCW_PUBLIC"), out bool publicAccess) || !publicAccess;
-                        var token = Environment.GetEnvironmentVariable("SCW_FUNCTIONS_TOKEN");
-                        ScalewayToken? decryptedToken = null;
+                        RSA? publicKey = null;
                         var tokenPublicKey = new byte[1000];
-                        if (requiresAuthentication && token != null && Convert.TryFromBase64String(PublicKeyRegex.Match(Environment.GetEnvironmentVariable("SCW_PUBLIC_KEY") ?? string.Empty)?.Groups[1]?.Value?.Trim() ?? string.Empty, tokenPublicKey, out int length))
+                        if (requiresAuthentication && Convert.TryFromBase64String(PublicKeyRegex.Match(Environment.GetEnvironmentVariable("SCW_PUBLIC_KEY") ?? string.Empty)?.Groups[1]?.Value?.Trim() ?? string.Empty, tokenPublicKey, out int length))
                         {
                             try
                             {
-                                var rsa = RSA.Create();
-                                rsa.ImportRSAPublicKey(new Span<byte>(tokenPublicKey).Slice(0, length).ToArray(), out length);
-                                decryptedToken = JsonSerializer.Deserialize<ScalewayToken>(JWT.Decode(token, rsa, JwsAlgorithm.RS256));
+                                publicKey = RSA.Create();
+                                publicKey.ImportRSAPublicKey(new Span<byte>(tokenPublicKey).Slice(0, length).ToArray(), out length);
                             }
                             catch (CryptographicException) {}
-                            catch (JoseException) {}
-                            catch (JsonException) {}
                         }
                         var ctx = new ScalewayContext
                         {
@@ -50,8 +44,7 @@ namespace Scaleway.Functions
                             ApplicationName = Environment.GetEnvironmentVariable("SCW_APPLICATION_NAME"),
                             ApplicationMemoryInMb = int.TryParse(Environment.GetEnvironmentVariable("SCW_APPLICATION_MEMORY"), out int applicationMemoryInMb) ? applicationMemoryInMb : null,
                             RequiresAuthentication = requiresAuthentication,
-                            Token = token,
-                            DecryptedToken = decryptedToken
+                            PublicKey = publicKey
                         };
 
                         return ctx;

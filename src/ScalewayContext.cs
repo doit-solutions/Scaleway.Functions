@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 namespace Scaleway.Functions
 {
     public class ScalewayContext
@@ -10,7 +12,6 @@ namespace Scaleway.Functions
         public string? ApplicationName { get; init; }
         public int? ApplicationMemoryInMb { get; init; }
         public bool? RequiresAuthentication { get; init; }
-        public string? Token { get; init; }
-        public ScalewayToken? DecryptedToken { get; init; }
+        public RSA? PublicKey { get; init; }
     }
 }

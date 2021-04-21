@@ -10,7 +10,7 @@
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="5.4.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.17.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.17.0" />
-    <PackageReference Include="Scaleway.Functions" Version="1.1.0" />
+    <PackageReference Include="Scaleway.Functions" Version="1.2.0" />
   </ItemGroup>
 
 </Project>
