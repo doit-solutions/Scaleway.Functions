@@ -56,6 +56,7 @@ namespace Scaleway.Functions
                     {
                         decryptedToken = JsonSerializer.Deserialize<ScalewayToken>(JWT.Decode(token, scwCtx?.PublicKey, JwsAlgorithm.RS256));
                     }
+                    catch (Newtonsoft.Json.JsonReaderException) {}
                     catch (JoseException) {}
                     if (decryptedToken == null)
                     {
