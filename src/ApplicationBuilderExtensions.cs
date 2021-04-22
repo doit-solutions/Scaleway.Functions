@@ -71,9 +71,15 @@ namespace Scaleway.Functions
                     var nbf = DateTimeOffset.FromUnixTimeSeconds(decryptedToken.NotValidBeforeInSecondsSinceEpoch);
                     var iat = DateTimeOffset.FromUnixTimeSeconds(decryptedToken.IssuedAtInSecondsSinceEpoch);
                     var exp = DateTimeOffset.FromUnixTimeSeconds(decryptedToken.ExpiresAtInSecondsSinceEpoch);
-                    if (nbf > now || iat > now || exp < now || ((decryptedToken.Claims?.Length ?? 0) > 0 && !(decryptedToken.Claims?.Any(c => string.Equals(c.NamespaceId, scwCtx?.NamespaceId, StringComparison.InvariantCultureIgnoreCase) && (string.IsNullOrWhiteSpace(c.ApplicationId) || string.Equals(c.ApplicationId, scwCtx?.ApplicationId, StringComparison.InvariantCultureIgnoreCase))) ?? false)))
+                    if (nbf > now || iat > now || exp < now)
                     {
-                        logger.LogWarning("Validation of provided Scaleway token failed for private function {ScwApplicationName}/{ScwApplicationId} in namespace {ScwNamespaceId}.", scwCtx?.ApplicationName, scwCtx?.ApplicationId, scwCtx?.NamespaceId);
+                        logger.LogWarning("Validation of provided Scaleway token failed for private function {ScwApplicationName}/{ScwApplicationId} in namespace {ScwNamespaceId} since provided token is not valid at this time.", scwCtx?.ApplicationName, scwCtx?.ApplicationId, scwCtx?.NamespaceId);
+                        ctx.Response.StatusCode = 403;
+                        return;
+                    }
+                    if ((decryptedToken.Claims?.Length ?? 0) > 0 && !(decryptedToken.Claims?.Any(c => string.Equals(c.NamespaceId, scwCtx?.NamespaceId, StringComparison.InvariantCultureIgnoreCase) && (string.IsNullOrWhiteSpace(c.ApplicationId) || string.Equals(c.ApplicationId, scwCtx?.ApplicationId, StringComparison.InvariantCultureIgnoreCase))) ?? false))
+                    {
+                        logger.LogWarning("Validation of provided Scaleway token failed for private function {ScwApplicationName}/{ScwApplicationId} in namespace {ScwNamespaceId} since provided token does not apply to this namespace and/or application.", scwCtx?.ApplicationName, scwCtx?.ApplicationId, scwCtx?.NamespaceId);
                         ctx.Response.StatusCode = 403;
                         return;
                     }

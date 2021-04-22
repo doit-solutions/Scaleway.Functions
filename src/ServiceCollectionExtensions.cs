@@ -25,13 +25,14 @@ namespace Scaleway.Functions
                     {
                         var requiresAuthentication = !bool.TryParse(Environment.GetEnvironmentVariable("SCW_PUBLIC"), out bool publicAccess) || !publicAccess;
                         RSA? publicKey = null;
-                        var tokenPublicKey = new byte[1000];
-                        if (requiresAuthentication && Convert.TryFromBase64String(PublicKeyRegex.Match(Environment.GetEnvironmentVariable("SCW_PUBLIC_KEY") ?? string.Empty)?.Groups[1]?.Value?.Trim() ?? string.Empty, tokenPublicKey, out int length))
+
+                        var key = Environment.GetEnvironmentVariable("SCW_PUBLIC_KEY") ?? string.Empty;
+                        if (requiresAuthentication && !string.IsNullOrWhiteSpace(key))
                         {
                             try
                             {
                                 publicKey = RSA.Create();
-                                publicKey.ImportRSAPublicKey(new Span<byte>(tokenPublicKey).Slice(0, length).ToArray(), out length);
+                                publicKey.ImportFromPem(key);
                             }
                             catch (CryptographicException) {}
                         }
