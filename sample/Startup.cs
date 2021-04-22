@@ -15,6 +15,7 @@ namespace Scaleway.Functions
             services
                 .AddResponseCompression()
                 .AddProblemDetails()
+                // Add the services required for Scaleway Functions hosting to function.
                 .AddScalewayFunctions()
                 .AddApplicationInsightsTelemetry();
         }
@@ -23,11 +24,16 @@ namespace Scaleway.Functions
         {
             app
                 .UseProblemDetails()
-                .UseScalewayFunctions(new Uri("https://sample-bucket-website.s3-website.nl-ams.scw.cloud"))
-                .UseResponseCompression()
-                .UseHsts()
-                .UseHttpsRedirection();
-            if (env.IsDevelopment())
+                // Add the Scaleway Function middleware as early as possible in the pipeline since it performs authorization.
+                .UseScalewayFunctions()
+                .UseResponseCompression();
+            if (!env.IsDevelopment())
+            {
+                app
+                    .UseHsts()
+                    .UseHttpsRedirection();
+            }
+            else if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }

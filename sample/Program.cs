@@ -15,6 +15,7 @@ namespace Scaleway.Functions
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
+                        // Make sure Kestrel is prepared for running in Scaleway's serverless environment.
                         .UseScalewayFunctionsHosting()
                         .UseStartup<Startup>();
                 });
